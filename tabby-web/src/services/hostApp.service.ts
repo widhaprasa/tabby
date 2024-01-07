@@ -2,6 +2,7 @@ import Bowser from 'bowser'
 import { Injectable, Injector } from '@angular/core'
 import { HostAppService, Platform } from 'tabby-core'
 
+
 @Injectable()
 export class WebHostApp extends HostAppService {
     get platform (): Platform {
