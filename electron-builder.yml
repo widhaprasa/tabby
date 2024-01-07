@@ -99,3 +99,7 @@ rpm:
   - '_build_id_links none'
   - '--replaces'
   - 'terminus-terminal'
+protocols:
+  name: m2mrem
+  schemes:
+  - m2mrem

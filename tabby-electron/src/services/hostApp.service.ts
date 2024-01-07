@@ -1,7 +1,6 @@
 import { Injectable, NgZone, Injector } from '@angular/core'
-import { isWindowsBuild, WIN_BUILD_FLUENT_BG_SUPPORTED, HostAppService, Platform, CLIHandler } from 'tabby-core'
+import { isWindowsBuild, WIN_BUILD_FLUENT_BG_SUPPORTED, HostAppService, Platform, CLIHandler, DeeplinkHandler } from 'tabby-core'
 import { ElectronService } from '../services/electron.service'
-
 
 @Injectable({ providedIn: 'root' })
 export class ElectronHostAppService extends HostAppService {
@@ -42,6 +41,13 @@ export class ElectronHostAppService extends HostAppService {
                     this.logger.info('CLI handler matched:', handler.constructor.name)
                     handled = true
                 }
+            }
+        }))
+
+        electron.ipcRenderer.on('deeplink', (_$event, url: string) => this.zone.run(async () => {
+            const deeplinkHandlers = injector.get(DeeplinkHandler) as unknown as DeeplinkHandler[]
+            for (const handler of deeplinkHandlers) {
+                handler.handle(url)
             }
         }))
 

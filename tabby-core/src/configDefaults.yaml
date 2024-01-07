@@ -37,7 +37,7 @@ profileDefaults:
   __nonStructural: true
   ssh:
     disableDynamicTitle: true
-recoverTabs: true
+recoverTabs: false
 enableAnalytics: true
 enableWelcomeTab: true
 electronFlags:

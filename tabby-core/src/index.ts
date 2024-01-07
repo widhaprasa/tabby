@@ -37,7 +37,7 @@ import { FastHtmlBindDirective } from './directives/fastHtmlBind.directive'
 import { DropZoneDirective } from './directives/dropZone.directive'
 import { CdkAutoDropGroup } from './directives/cdkAutoDropGroup.directive'
 
-import { Theme, CLIHandler, TabContextMenuItemProvider, TabRecoveryProvider, HotkeyProvider, ConfigProvider, PlatformService, FileProvider, ProfilesService, ProfileProvider, QuickConnectProfileProvider, SelectorOption, Profile, SelectorService, CommandProvider } from './api'
+import { Theme, CLIHandler, TabContextMenuItemProvider, TabRecoveryProvider, HotkeyProvider, ConfigProvider, PlatformService, FileProvider, ProfilesService, ProfileProvider, QuickConnectProfileProvider, SelectorOption, Profile, SelectorService, CommandProvider, DeeplinkHandler } from './api'
 
 import { AppService } from './services/app.service'
 import { ConfigService } from './services/config.service'
@@ -51,6 +51,7 @@ import { CoreConfigProvider } from './config'
 import { AppHotkeyProvider } from './hotkeys'
 import { TaskCompletionContextMenu, CommonOptionsContextMenu, TabManagementContextMenu, ProfilesContextMenu } from './tabContextMenu'
 import { LastCLIHandler, ProfileCLIHandler } from './cli'
+import { DefaultDeeplinkHandler } from './deeplink'
 import { SplitLayoutProfilesService } from './profiles'
 import { CoreCommandProvider } from './commands'
 
@@ -72,6 +73,7 @@ const PROVIDERS = [
     { provide: TabRecoveryProvider, useExisting: SplitTabRecoveryProvider, multi: true },
     { provide: CLIHandler, useClass: ProfileCLIHandler, multi: true },
     { provide: CLIHandler, useClass: LastCLIHandler, multi: true },
+    { provide: DeeplinkHandler, useClass: DefaultDeeplinkHandler, multi: true },
     { provide: FileProvider, useClass: VaultFileProvider, multi: true },
     { provide: ProfileProvider, useExisting: SplitLayoutProfilesService, multi: true },
     { provide: CommandProvider, useExisting: CoreCommandProvider, multi: true },
