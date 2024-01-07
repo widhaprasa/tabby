@@ -8,10 +8,10 @@ appearance:
   dockHideOnBlur: false
   dockAlwaysOnTop: true
   flexTabs: false
-  tabsLocation: top
-  tabsInFullscreen: false
+  tabsLocation: left
+  tabsInFullscreen: true
   cycleTabs: true
-  theme: Follow the color scheme
+  theme: Standard (legacy)
   frame: thin
   css: '/* * { color: blue !important; } */'
   opacity: 1.0
@@ -21,7 +21,7 @@ appearance:
   spaciness: 1
   colorSchemeMode: 'dark'
 terminal:
-  showBuiltinProfiles: true
+  showBuiltinProfiles: false
   showRecentProfiles: 3
   paneResizeStep: 0.1
   focusFollowsMouse: false
@@ -38,11 +38,11 @@ profileDefaults:
   ssh:
     disableDynamicTitle: true
 recoverTabs: false
-enableAnalytics: true
-enableWelcomeTab: true
+enableAnalytics: false
+enableWelcomeTab: false
 electronFlags:
   - ['force_discrete_gpu', '0']
-enableAutomaticUpdates: true
+enableAutomaticUpdates: false
 version: 1
 vault: null
 encrypted: false
