@@ -31,7 +31,7 @@ try {
     app.exit(1)
 }
 
-let deeplinkingUrl = null;
+let deeplinkUrl = null
 if (!app.isDefaultProtocolClient('m2mrem')) {
     app.setAsDefaultProtocolClient('m2mrem')
 }
@@ -41,9 +41,9 @@ const application = new Application(configStore)
 if (process.platform === 'darwin') {
     app.on('open-url', function(event, url) {
         event.preventDefault()
-        deeplinkingUrl = url
+        deeplinkUrl = url
         if (app.isReady) {
-            application.broadcast('deeplink', deeplinkingUrl)
+            application.broadcast('deeplink', deeplinkUrl)
         }
     })
 }
@@ -98,8 +98,8 @@ app.on('ready', async () => {
 
     const window = await application.newWindow({ hidden: argv.hidden })
     await window.ready
-    if (deeplinkingUrl) {
-        application.broadcast('deeplink', deeplinkingUrl)
+    if (deeplinkUrl) {
+        application.broadcast('deeplink', deeplinkUrl)
     } else {
         window.passCliArguments(process.argv, process.cwd(), false)
     }

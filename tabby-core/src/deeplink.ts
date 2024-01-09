@@ -13,15 +13,15 @@ export class DefaultDeeplinkHandler extends DeeplinkHandler {
 
     handle (url: string): void {
 
-        const deeplinkUrl = new URL(url);
-        const pathname = deeplinkUrl.pathname;
-        const token = pathname.slice(2).split(":");
-        if (token.length < 2) {
-            return;
+        const deeplinkURL = new URL(url)
+        const pathname = deeplinkURL.pathname
+        const token = pathname.slice(2).split(":")
+        const host = token[0]
+        let port = 22
+        if (token.length >= 2) {
+            port = parseInt(token[1])
         }
-        const host = token[0];
-        const port = parseInt(token[1]);
-        const type = deeplinkUrl.searchParams.get("type") ?? 'ssh';
+        const type = deeplinkURL.searchParams.get("type") ?? 'ssh'
         const options = {
             host,
             port,
@@ -38,18 +38,19 @@ export class DefaultDeeplinkHandler extends DeeplinkHandler {
                     "diffie-hellman-group18-sha512",
                     "ecdh-sha2-nistp256",
                     "ecdh-sha2-nistp384",
-                    "ecdh-sha2-nistp521"
+                    "ecdh-sha2-nistp521",
                 ]
             },
+            disableHostKeyVerification: true,
         }
 
-        const u = deeplinkUrl.searchParams.get("u");
+        const u = deeplinkURL.searchParams.get("u")
         if (u) {
-            options['user'] = Buffer.from(u, 'base64').toString();
-            const p = deeplinkUrl.searchParams.get("p");
+            options['user'] = Buffer.from(u, 'base64').toString()
+            const p = deeplinkURL.searchParams.get("p")
             if (p) {
-                options['auth'] = 'password';
-                options['password'] =  Buffer.from(p, 'base64').toString();
+                options['auth'] = 'password'
+                options['password'] =  Buffer.from(p, 'base64').toString()
             }
         }
 

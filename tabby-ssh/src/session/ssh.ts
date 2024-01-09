@@ -416,6 +416,10 @@ export class SSHSession {
         if (!this.config.store.ssh.verifyHostKeys) {
             return true
         }
+        const disableHostKeyVerification = this.profile.options.disableHostKeyVerification ?? false
+        if (disableHostKeyVerification) {
+            return true
+        }
         const selector = {
             host: this.profile.options.host,
             port: this.profile.options.port ?? 22,
