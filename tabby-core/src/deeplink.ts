@@ -26,7 +26,7 @@ export class DefaultDeeplinkHandler extends DeeplinkHandler {
             host,
             port,
             algorithms: {
-                key: [
+                kex: [
                     "curve25519-sha256",
                     "curve25519-sha256@libssh.org",
                     "diffie-hellman-group-exchange-sha256",
