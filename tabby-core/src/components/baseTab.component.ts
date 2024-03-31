@@ -128,7 +128,7 @@ export abstract class BaseTabComponent extends BaseComponent {
     }
 
     /**
-     * Shows the acticity marker on the tab header
+     * Shows the activity marker on the tab header
      */
     displayActivity (): void {
         if (!this.hasActivity) {
@@ -138,7 +138,7 @@ export abstract class BaseTabComponent extends BaseComponent {
     }
 
     /**
-     * Removes the acticity marker from the tab header
+     * Removes the activity marker from the tab header
      */
     clearActivity (): void {
         if (this.hasActivity) {
@@ -195,7 +195,10 @@ export abstract class BaseTabComponent extends BaseComponent {
         if (!this.viewContainer || !this.viewContainerEmbeddedRef) {
             return
         }
-        this.viewContainer.detach(this.viewContainer.indexOf(this.viewContainerEmbeddedRef))
+        const viewIndex = this.viewContainer.indexOf(this.viewContainerEmbeddedRef)
+        if (viewIndex !== -1) {
+            this.viewContainer.detach(viewIndex)
+        }
         this.viewContainerEmbeddedRef = undefined
         this.viewContainer = undefined
     }
@@ -226,7 +229,6 @@ export abstract class BaseTabComponent extends BaseComponent {
             this.destroyed.next()
         }
         this.destroyed.complete()
-        this.hostView.destroy()
     }
 
     /** @hidden */
