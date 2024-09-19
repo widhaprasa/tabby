@@ -31,22 +31,9 @@ try {
     app.exit(1)
 }
 
-let deeplinkUrl = null
-if (!app.isDefaultProtocolClient('m2mrem')) {
-    app.setAsDefaultProtocolClient('m2mrem')
-}
+process.mainModule = module
 
 const application = new Application(configStore)
-
-if (process.platform === 'darwin') {
-    app.on('open-url', function(event, url) {
-        event.preventDefault()
-        deeplinkUrl = url
-        if (app.isReady) {
-            application.broadcast('deeplink', deeplinkUrl)
-        }
-    })
-}
 
 ipcMain.on('app:new-window', () => {
     application.newWindow()
@@ -98,10 +85,6 @@ app.on('ready', async () => {
 
     const window = await application.newWindow({ hidden: argv.hidden })
     await window.ready
-    if (deeplinkUrl) {
-        application.broadcast('deeplink', deeplinkUrl)
-    } else {
-        window.passCliArguments(process.argv, process.cwd(), false)
-    }
+    window.passCliArguments(process.argv, process.cwd(), false)
     window.focus()
 })

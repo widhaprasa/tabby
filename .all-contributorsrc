@@ -1310,6 +1310,24 @@
       "contributions": [
         "code"
       ]
+    },
+    {
+      "login": "fireblue",
+      "name": "fireblue",
+      "avatar_url": "https://avatars.githubusercontent.com/u/1034929?v=4",
+      "profile": "https://github.com/fireblue",
+      "contributions": [
+        "code"
+      ]
+    },
+    {
+      "login": "marko1616",
+      "name": "marko1616",
+      "avatar_url": "https://avatars.githubusercontent.com/u/45327989?v=4",
+      "profile": "https://github.com/marko1616",
+      "contributions": [
+        "code"
+      ]
     }
   ],
   "contributorsPerLine": 7,
