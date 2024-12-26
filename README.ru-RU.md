@@ -67,7 +67,7 @@
 
 ![](docs/readme-terminal.png)
 
-* Терминал V220 + различные дополнения;
+* Терминал VT220 + различные дополнения;
 * Деление окна на несколько панелей;
 * Вкладки на любой стороне окна;
 * Опционально закрепляемое окно с глобальной горячей клавишей для вызова («Quake console»);
@@ -337,6 +337,7 @@ Pull-запросы и плагины приветствуются!
       <td align="center" valign="top" width="14.28%"><a href="https://github.com/GeminiLn"><img src="https://avatars.githubusercontent.com/u/12425057?v=4?s=100" width="100px;" alt="Yu Qin"/><br /><sub><b>Yu Qin</b></sub></a><br /><a href="https://github.com/Eugeny/tabby/commits?author=GeminiLn" title="Code">💻</a></td>
       <td align="center" valign="top" width="14.28%"><a href="https://github.com/fireblue"><img src="https://avatars.githubusercontent.com/u/1034929?v=4?s=100" width="100px;" alt="fireblue"/><br /><sub><b>fireblue</b></sub></a><br /><a href="https://github.com/Eugeny/tabby/commits?author=fireblue" title="Code">💻</a></td>
       <td align="center" valign="top" width="14.28%"><a href="https://github.com/marko1616"><img src="https://avatars.githubusercontent.com/u/45327989?v=4?s=100" width="100px;" alt="marko1616"/><br /><sub><b>marko1616</b></sub></a><br /><a href="https://github.com/Eugeny/tabby/commits?author=marko1616" title="Code">💻</a></td>
+      <td align="center" valign="top" width="14.28%"><a href="https://www.selfhosted.sg/"><img src="https://avatars.githubusercontent.com/u/128927132?v=4?s=100" width="100px;" alt="SelfHosted"/><br /><sub><b>SelfHosted</b></sub></a><br /><a href="#financial-SelfHosted-Club" title="Financial">💵</a></td>
     </tr>
   </tbody>
 </table>

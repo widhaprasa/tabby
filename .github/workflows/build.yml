@@ -31,14 +31,20 @@ jobs:
       run: yarn run lint
 
   macOS-Build:
-    runs-on: macos-12
+    runs-on: macos-15
     needs: Lint
     strategy:
       matrix:
         include:
           - arch: x86_64
+            rust_triple: x86_64-apple-darwin
           - arch: arm64
+            rust_triple: aarch64-apple-darwin
       fail-fast: false
+
+    env:
+      ARCH: ${{matrix.arch}}
+      RUST_TARGET_TRIPLE: ${{matrix.rust_triple}}
 
     steps:
     - name: Checkout
@@ -51,19 +57,13 @@ jobs:
       with:
         node-version: 18
 
+    - run: rustup target add ${{matrix.rust_triple}}
+
     - name: Install deps
       run: |
-        sudo -H pip3 install setuptools
-        sudo npm i -g yarn
         yarn --network-timeout 1000000
       env:
         ARCH: ${{matrix.arch}}
-
-    - name: Fix cross build
-      run: |
-        rm -rf app/node_modules/cpu-features
-        rm -rf app/node_modules/ssh2/crypto/build
-      if: matrix.arch == 'arm64'
 
     - name: Webpack
       run: yarn run build
@@ -80,7 +80,7 @@ jobs:
 
     - name: Build and sign packages
       run: scripts/build-macos.mjs
-      if: github.repository == 'Eugeny/tabby' && github.event_name == 'push' && (github.ref == 'refs/heads/master' || startsWith(github.ref, 'refs/tags'))
+      if: github.event_name == 'push' && (github.ref_protected || startsWith(github.ref, 'refs/tags'))
       env:
         ARCH: ${{matrix.arch}}
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -95,7 +95,7 @@ jobs:
 
     - name: Build packages without signing
       run: scripts/build-macos.mjs
-      if: "! (github.repository == 'Eugeny/tabby' && github.event_name == 'push' && (github.ref == 'refs/heads/master' || startsWith(github.ref, 'refs/tags')))"
+      if: "! (github.event_name == 'push' && (github.ref_protected || startsWith(github.ref, 'refs/tags')))"
       env:
         ARCH: ${{matrix.arch}}
         # DEBUG: electron-builder,electron-builder:*
@@ -136,18 +136,24 @@ jobs:
         include:
           - build-arch: x64
             arch: amd64
+            rust_triple: x86_64-unknown-linux-gnu
           - build-arch: arm64
             arch: arm64
+            rust_triple: aarch64-unknown-linux-gnu
             triplet: aarch64-linux-gnu-
           - build-arch: arm
             arch: armhf
+            rust_triple: arm-unknown-linux-gnueabihf
             triplet: arm-linux-gnueabihf-
+      fail-fast: false
+
     env:
       CC: ${{matrix.triplet}}gcc
       CXX: ${{matrix.triplet}}g++
       ARCH: ${{matrix.build-arch}}
       npm_config_arch: ${{matrix.build-arch}}
       npm_config_target_arch: ${{matrix.build-arch}}
+      RUST_TARGET_TRIPLE: ${{matrix.rust_triple}}
 
     steps:
     - name: Checkout
@@ -159,6 +165,8 @@ jobs:
       uses: actions/setup-node@v3.7.0
       with:
         node-version: 18
+
+    - run: rustup target add ${{matrix.rust_triple}}
 
     - name: Install dependencies
       run: |
@@ -234,14 +242,14 @@ jobs:
 
     - name: Upload packages to packagecloud.io
       uses: TykTechnologies/packagecloud-action@main
-      if: github.repository == 'Eugeny/tabby' && github.event_name == 'push' && startsWith(github.ref, 'refs/tags/')
+      if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags/')
       env:
         PACKAGECLOUD_TOKEN: ${{ secrets.PACKAGECLOUD_TOKEN }}
       with:
         repo: 'eugeny/tabby'
         dir: 'dist'
         rpmvers: 'el/9 el/8 ol/6 ol/7'
-        debvers: 'ubuntu/bionic ubuntu/focal ubuntu/hirsute ubuntu/impish ubuntu/jammy ubuntu/kinetic ubuntu/noble debian/jessie debian/stretch debian/buster'
+        debvers: 'ubuntu/bionic ubuntu/focal ubuntu/hirsute ubuntu/impish ubuntu/jammy ubuntu/kinetic ubuntu/noble ubuntu/oracular debian/jessie debian/stretch debian/buster'
 
     - uses: actions/upload-artifact@master
       name: Upload AppImage (${{matrix.arch}})
@@ -280,16 +288,21 @@ jobs:
         path: tabby-web.tar.gz
       if: matrix.build-arch == 'x64'
 
-
   Windows-Build:
-    runs-on: windows-2022
+    runs-on: windows-latest
     needs: Lint
     strategy:
       matrix:
         include:
           - arch: x64
+            rust_triple: x86_64-pc-windows-msvc
           - arch: arm64
+            rust_triple: aarch64-pc-windows-msvc
       fail-fast: false
+
+    env:
+      RUST_TARGET_TRIPLE: ${{matrix.rust_triple}}
+      ARCH: ${{matrix.arch}}
 
     steps:
     - name: Checkout
@@ -297,10 +310,22 @@ jobs:
       with:
         fetch-depth: 0
 
+    - name: Code signing with Software Trust Manager
+      uses: digicert/ssm-code-signing@v1.0.0
+      if: github.event_name == 'push' && (startsWith(github.ref, 'refs/tags'))
+
     - name: Installing Node
       uses: actions/setup-node@v3.7.0
       with:
         node-version: 18
+
+    - run: npm i -g npx
+    - run: rustup target add ${{matrix.rust_triple}}
+
+    - name: Update node-gyp
+      run: |
+        npm install --global node-gyp@10.2.0
+        npm prefix -g | % {npm config set node_gyp "$_\node_modules\node-gyp\bin\node-gyp.js"}
 
     - name: Build
       shell: powershell
@@ -312,20 +337,48 @@ jobs:
       env:
         ARCH: ${{matrix.arch}}
 
+    - name: Decode certificate
+      if: github.event_name == 'push' && (startsWith(github.ref, 'refs/tags'))
+      env:
+        SM_CLIENT_CERT_FILE_B64: ${{ secrets.SM_CLIENT_CERT_FILE_B64 }}
+      run: |
+        SM_CLIENT_CERT_FILE=$RUNNER_TEMP/certificate.p12
+        echo "$SM_CLIENT_CERT_FILE_B64" | base64 --decode > $SM_CLIENT_CERT_FILE
+        echo "SM_CLIENT_CERT_FILE=$SM_CLIENT_CERT_FILE" >> "$GITHUB_ENV"
+      shell: bash
+
     - name: Build and sign packages
-      run: node scripts/build-windows.mjs
-      if: github.repository == 'Eugeny/tabby' && github.event_name == 'push' && (github.ref == 'refs/heads/master' || startsWith(github.ref, 'refs/tags'))
+      if: github.event_name == 'push' && (startsWith(github.ref, 'refs/tags'))
+      shell: powershell
+      run: |
+        Get-FileHash $env:SM_CLIENT_CERT_FILE -Algorithm MD5
+        smksp_registrar.exe list
+        smctl.exe healthcheck
+        smctl.exe keypair ls
+        smctl windows certsync --keypair-alias $env:SM_KEYPAIR_ALIAS
+        smctl.exe certificate ls
+        C:\Windows\System32\certutil.exe -csp "DigiCert Signing Manager KSP" -key -user
+        smksp_cert_sync.exe
+
+        # not used but necessary for electron-builder to run
+        $env:WIN_CSC_LINK=$env:SM_CLIENT_CERT_FILE
+        $env:WIN_CSC_KEY_PASSWORD=$env:SM_CLIENT_CERT_PASSWORD
+        node scripts/build-windows.mjs
       env:
         ARCH: ${{matrix.arch}}
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         KEYGEN_TOKEN: ${{ secrets.KEYGEN_TOKEN }}
-        WIN_CSC_LINK: ${{ secrets.WIN_CSC_LINK }}
-        WIN_CSC_KEY_PASSWORD: ${{ secrets.WIN_CSC_KEY_PASSWORD }}
-        DEBUG: electron-builder,electron-builder:*
+        SM_CLIENT_CERT_PASSWORD: ${{ secrets.SM_CLIENT_CERT_PASSWORD }}
+        SM_PUBLISHER_NAME: ${{ secrets.SM_PUBLISHER_NAME }}
+        SM_API_KEY: ${{ vars.SM_API_KEY }}
+        SM_HOST: ${{ vars.SM_HOST }}
+        SM_CODE_SIGNING_CERT_SHA1_HASH: ${{ vars.SM_CODE_SIGNING_CERT_SHA1_HASH }}
+        SM_KEYPAIR_ALIAS: ${{ vars.SM_KEYPAIR_ALIAS }}
+        # DEBUG: electron-builder,electron-builder:*
 
     - name: Build packages without signing
       run: node scripts/build-windows.mjs
-      if: "! (github.repository == 'Eugeny/tabby' && github.event_name == 'push' && (github.ref == 'refs/heads/master' || startsWith(github.ref, 'refs/tags')))"
+      if: "! (github.event_name == 'push' && (startsWith(github.ref, 'refs/tags')))"
       env:
         ARCH: ${{matrix.arch}}
 
